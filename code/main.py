@@ -1,17 +1,23 @@
+#!/usr/bin/env python3
+import os
 import datetime
+
 from subprocess import Popen, PIPE
 
-today = datetime.datetime.now()
-year = today.year
-day_num = getDayNum()
+# Function to get current year
+def getYear():
+  today = datetime.datetime.now()
+  return str(today.year)
 
 # Function to get the day number
 def getDayNum():
-  day_of_year = (today - datetime.datetime(year, 1, 1)).days + 1
-  return day_of_year
+  today = datetime.datetime.now()
+  day_of_year = (today - datetime.datetime(today.year, 1, 1)).days + 1
+  return str(day_of_year)
 
 # Function to check if POP is ready
 def popReady(path):
+    year = getYear()
     ready = True
     day_num = getDayNum()
     summary = path + "/" + "C030prnSummary" + day_num + "_" + year
@@ -21,37 +27,50 @@ def popReady(path):
     pop_filed3 = path + "/" + "PopFiled1_" + year + "_" + day_num + "_C03.pri"
     pop_listd = path + "/" + "PopListd1_" + year + "_" + day_num + "_C03.POP"
     time_events_cmds = path + "/" + "TimeEvents1Cmds" + day_num + year + ".dat"
-    if not path.exists(summary):
+    if not os.path.exists(summary):
+        print("Missing File: " + summary)
         ready = False
-    if not path.exists(eventlog):
+    if not os.path.exists(eventlog):
+        print("Missing File: " + eventlog)
         ready = False
-    if not path.exists(pop_filed1):
+    if not os.path.exists(pop_filed1):
+        print("Missing File: " + pop_filed1)
         ready = False
-    if not path.exists(pop_filed2):
+    if not os.path.exists(pop_filed2):
+        print("Missing File: " + pop_filed2)
         ready = False
-    if not path.exists(pop_filed3):
+    if not os.path.exists(pop_filed3):
+        print("Missing File: " + pop_filed3)
         ready = False
-    if not path.exists(pop_listd):
+    if not os.path.exists(pop_listd):
+        print("Missing File: " + pop_listd)
         ready = False
-    if not path.exists(time_events_cmds):
+    if not os.path.exists(time_events_cmds):
+        print("Missing File: " + time_events_cmds)
         ready = False
     return ready
 
 # Generic function to run a bash command from Python
 def runCommand(cmd):
     p = Popen(cmd, stdout=PIPE, stderr=PIPE, shell=True)
+    print(cmd)
     output, err = p.communicate()
+    print(output)
     if err:
         return False
     return True
 
 # Function to run the PlVerify commands
 def runPlVerify():
+    year = getYear()
+    day_num = getDayNum()
     cmd = "PlVerify.sh" + " " + day_num + " " + year
     return runCommand(cmd)
 
 # Function to run the lpr commands
 def runLPR(path):
+    year = getYear()
+    day_num = getDayNum()
     summary = path + "/" + "C030prnSummary" + day_num + "_" + year
     pop_filed3 = path + "/" + "PopFiled1_" + year + "_" + day_num + "_C03.pri"
     summary_lpr_cmd = "lpr " + summary
@@ -68,8 +87,9 @@ def runLPR(path):
 # The Main Function
 def main():
     # Input area path from user
-    path = input("ENTER AREA PATH: ")
-    path = path.rstrip('/')
+    # path = input("ENTER AREA PATH: ")
+    # path = path.rstrip('/')
+    path = "/Users/ajay.mahto/Desktop/ASHISH/moxscfns/oa/dbs/64/schemacs/C03/pop"
     # Check if POP is ready
     if popReady(path):
         print("POP READY!")
@@ -85,3 +105,6 @@ def main():
             print("PLVERIFY COMMAND FAIL!")
     else:
         print("POP NOT READY!")
+
+if __name__ == '__main__':
+    main()
